@@ -50,6 +50,26 @@ Make sure you upload the `.pfx` file to Azure through the portal.
 3. Scroll down to "Custom Domains and SSL"
 4. Click the "Upload Certificate" button in the toolbar (remember your password!)
 
+**YOU CANNOT ENCRYPT THE `<appSettings>` SECTION IN AZURE WEB APPS!** See [this SO question](http://stackoverflow.com/questions/15067759/why-cant-i-encrypt-web-config-appsettings-using-a-custom-configprotectionprovid).
+
+Other sections are just fine but for whatever reason, IIS just **requires** you to GAC the config provider for it to work. In Azure web apps, we cannot GAC. So what can we do? We can use our **own** config section!
+
+[Here's an implementation example](https://gist.github.com/kamranayub/eb6518356ac2b2f1a72a) of an `ISecretsProvider` contract and a `ConfigSecretsProvider` example implementation.
+
+The `ConfigSecretsProvider` will use environment variables defined in Azure *first* then fallback to the config. This mirrors how app settings work in Azure.
+
+To encrypt the `<appSecrets>` section, just run the the command (in the same directory as the web.config and using the Visual Studio Command Prompt):
+
+```
+aspnet_regiis -pef appSecrets . -prov CustomProvider
+```
+
+And to decrypt:
+
+```
+aspnet_regiis -pdf appSecrets .
+```
+
 ### If you use LocalMachine store locally
 
 If you run your app under `ApplicationPoolIdentity` or any other identity other than yourself, you are probably using `storeLocation="LocalMachine"` for the PKCS provider. In Azure, this won't work. For Azure, certificates that are uploaded are stored under `Cert:\CurrentUser\My` **not** `LocalMachine`.
