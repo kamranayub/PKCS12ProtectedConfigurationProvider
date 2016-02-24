@@ -38,7 +38,7 @@ Use the Visual Studio Command Promot for these commands.
   ```
 
 5. Encrypt sections of your config as needed:
-  - `aspnet_regiis -pef appSettings . -prov CustomProvider`
+  - `aspnet_regiis -pef appSecrets . -prov CustomProvider`
   - `aspnet_regiis -pef connectionStrings . -prov CustomProvider`
   
 ## Azure
